@@ -1,160 +1,151 @@
+import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { GraduationCap, Users, BookOpen, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CoursesGrid } from '@/components/CoursesGrid';
+import { CreateCourseForm } from '@/components/CreateCourseForm';
+import { GraduationCap, BookOpen, Users, Award, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const Index = () => {
-  const { user, profile, signOut } = useAuth();
+export default function Index() {
+  const { user, profile, loading, signOut } = useAuth();
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const navigate = useNavigate();
 
-  if (!user) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/5">
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !profile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
         <div className="container mx-auto px-4 py-16">
-          <div className="text-center mb-16">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <GraduationCap className="h-12 w-12 text-primary" />
-              <h1 className="text-6xl font-bold text-primary">SEEKHO</h1>
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="flex justify-center mb-8">
+              <div className="bg-primary/10 p-6 rounded-full">
+                <GraduationCap className="w-16 h-16 text-primary" />
+              </div>
             </div>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Discover, learn, and grow with our comprehensive e-learning platform. 
-              Connect with expert teachers and unlock your potential.
+            
+            <h1 className="text-6xl font-bold text-foreground mb-6 tracking-tight">
+              Welcome to <span className="text-primary">SEEKHO</span>
+            </h1>
+            
+            <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
+              Your gateway to knowledge and growth. Join thousands of learners and educators 
+              in our interactive learning community.
             </p>
-            <div className="flex gap-4 justify-center">
-              <Link to="/auth">
-                <Button size="lg" className="text-lg px-8">
-                  Get Started
-                </Button>
-              </Link>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+              <Card className="border-2 hover:shadow-lg transition-all duration-300">
+                <CardHeader>
+                  <BookOpen className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>Rich Courses</CardTitle>
+                  <CardDescription>
+                    Access comprehensive courses designed by expert educators
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="border-2 hover:shadow-lg transition-all duration-300">
+                <CardHeader>
+                  <Users className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>Interactive Learning</CardTitle>
+                  <CardDescription>
+                    Engage with peers and instructors in a collaborative environment
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="border-2 hover:shadow-lg transition-all duration-300">
+                <CardHeader>
+                  <Award className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>Track Progress</CardTitle>
+                  <CardDescription>
+                    Monitor your learning journey and celebrate achievements
+                  </CardDescription>
+                </CardHeader>
+              </Card>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <Card>
-              <CardHeader>
-                <BookOpen className="h-8 w-8 text-primary mb-2" />
-                <CardTitle>Rich Course Content</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Access high-quality video courses, interactive materials, and comprehensive resources.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <Users className="h-8 w-8 text-primary mb-2" />
-                <CardTitle>Expert Teachers</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Learn from qualified instructors who are passionate about sharing their knowledge.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <Star className="h-8 w-8 text-primary mb-2" />
-                <CardTitle>Flexible Learning</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Study at your own pace, anywhere and anytime that suits your schedule.
-                </p>
-              </CardContent>
-            </Card>
+            <div className="space-y-4">
+              <Button 
+                size="lg" 
+                className="px-12 py-6 text-lg font-semibold bg-primary hover:bg-primary/90 shadow-xl hover:shadow-2xl transition-all duration-300"
+                onClick={() => window.location.href = '/auth'}
+              >
+                Get Started Today
+              </Button>
+              
+              <p className="text-sm text-muted-foreground">
+                Ready to begin your learning journey? Join us now!
+              </p>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5">
-        <nav className="bg-card border-b px-4 py-3">
-          <div className="container mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <GraduationCap className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold text-primary">SEEKHO</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-muted-foreground">
-                Welcome, {profile?.full_name || 'User'} ({profile?.role})
-              </span>
-              <Button variant="outline" onClick={signOut}>
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </nav>
+  const handleViewCourse = (courseId: string) => {
+    navigate(`/course/${courseId}`);
+  };
 
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">
-              {profile?.role === 'teacher' ? 'Teacher Dashboard' : 'Student Dashboard'}
-            </h2>
-            <p className="text-muted-foreground">
-              {profile?.role === 'teacher' 
-                ? 'Manage your courses and help students learn' 
-                : 'Explore courses and continue your learning journey'
-              }
-            </p>
-          </div>
+  const handleEditCourse = (courseId: string) => {
+    navigate(`/course/${courseId}`);
+  };
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>My Courses</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  {profile?.role === 'teacher' 
-                    ? 'View and manage your created courses'
-                    : 'Access your enrolled courses'
-                  }
-                </p>
-                <Button className="w-full">
-                  {profile?.role === 'teacher' ? 'Manage Courses' : 'View My Courses'}
-                </Button>
-              </CardContent>
-            </Card>
+  const handleCreateSuccess = () => {
+    setShowCreateForm(false);
+  };
 
-            {profile?.role === 'teacher' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Create Course</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Create a new course and upload videos
-                  </p>
-                  <Button className="w-full">Create New Course</Button>
-                </CardContent>
-              </Card>
-            )}
-
-            {profile?.role === 'student' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Browse Courses</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Discover new courses to enroll in
-                  </p>
-                  <Button className="w-full">Browse Courses</Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+  if (showCreateForm) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4">
+        <div className="container mx-auto max-w-4xl py-8">
+          <CreateCourseForm
+            onSuccess={handleCreateSuccess}
+            onCancel={() => setShowCreateForm(false)}
+          />
         </div>
       </div>
-    </ProtectedRoute>
-  );
-};
+    );
+  }
 
-export default Index;
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-foreground">
+              Welcome back, {profile.full_name || 'User'}!
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              {profile.role === 'teacher' ? 'Manage your courses and inspire students' : 'Continue your learning journey'}
+            </p>
+          </div>
+          
+          <Button variant="outline" onClick={signOut}>
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
+
+        {/* Courses Section */}
+        <CoursesGrid
+          onCreateCourse={() => setShowCreateForm(true)}
+          onViewCourse={handleViewCourse}
+          onEditCourse={handleEditCourse}
+        />
+      </div>
+    </div>
+  );
+}
