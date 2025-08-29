@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CoursesGrid } from '@/components/CoursesGrid';
-import { CreateCourseForm } from '@/components/CreateCourseForm';
-import { GraduationCap, BookOpen, Users, Award, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Navigation } from '@/components/Navigation';
+import { HomeTab } from '@/components/tabs/HomeTab';
+import { CoursesTab } from '@/components/tabs/CoursesTab';
+import { MyCoursesTab } from '@/components/tabs/MyCoursesTab';
+import { ProfileTab } from '@/components/tabs/ProfileTab';
+import { GraduationCap, BookOpen, Users, Award } from 'lucide-react';
 
 export default function Index() {
-  const { user, profile, loading, signOut } = useAuth();
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const navigate = useNavigate();
+  const { user, profile, loading } = useAuth();
+  const [activeTab, setActiveTab] = useState('home');
 
   if (loading) {
     return (
@@ -94,57 +95,36 @@ export default function Index() {
     );
   }
 
-  const handleViewCourse = (courseId: string) => {
-    navigate(`/course/${courseId}`);
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'home':
+        return <HomeTab />;
+      case 'courses':
+        return <CoursesTab />;
+      case 'my-courses':
+        return <MyCoursesTab />;
+      case 'profile':
+        return <ProfileTab />;
+      default:
+        return <HomeTab />;
+    }
   };
-
-  const handleEditCourse = (courseId: string) => {
-    navigate(`/course/${courseId}`);
-  };
-
-  const handleCreateSuccess = () => {
-    setShowCreateForm(false);
-  };
-
-  if (showCreateForm) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4">
-        <div className="container mx-auto max-w-4xl py-8">
-          <CreateCourseForm
-            onSuccess={handleCreateSuccess}
-            onCancel={() => setShowCreateForm(false)}
-          />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
+      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+      
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-foreground">
-              Welcome back, {profile.full_name || 'User'}!
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              {profile.role === 'teacher' ? 'Manage your courses and inspire students' : 'Continue your learning journey'}
-            </p>
-          </div>
-          
-          <Button variant="outline" onClick={signOut}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-foreground mb-2">
+            Welcome back, {profile.full_name || 'User'}!
+          </h1>
+          <p className="text-muted-foreground">
+            {profile.role === 'teacher' ? 'Manage your courses and inspire students' : 'Continue your learning journey'}
+          </p>
         </div>
 
-        {/* Courses Section */}
-        <CoursesGrid
-          onCreateCourse={() => setShowCreateForm(true)}
-          onViewCourse={handleViewCourse}
-          onEditCourse={handleEditCourse}
-        />
+        {renderTabContent()}
       </div>
     </div>
   );
