@@ -41,29 +41,47 @@ const OTPVerification = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: 'email',
+      // Get stored signup data
+      const pendingSignupData = sessionStorage.getItem('pendingSignup');
+      if (!pendingSignupData) {
+        throw new Error('No pending signup data found. Please start the registration process again.');
+      }
+
+      const signupData = JSON.parse(pendingSignupData);
+      
+      // Verify OTP and create account
+      const { data, error } = await supabase.functions.invoke('verify-otp', {
+        body: {
+          email,
+          otp,
+          password: signupData.password,
+          fullName: signupData.fullName,
+          role: signupData.role
+        }
       });
 
-      if (error) {
+      if (error || !data.success) {
         toast({
           title: "Verification failed",
-          description: error.message,
+          description: error?.message || data?.error || "Invalid verification code",
           variant: "destructive",
         });
       } else {
+        // Clear pending signup data
+        sessionStorage.removeItem('pendingSignup');
+        
         toast({
-          title: "Email verified!",
-          description: "Your account has been successfully created.",
+          title: "Account created successfully!",
+          description: "You can now sign in with your credentials.",
         });
-        navigate('/');
+        
+        // Redirect to auth page to sign in
+        navigate('/auth');
       }
     } catch (error: any) {
       toast({
         title: "Verification failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -75,18 +93,25 @@ const OTPVerification = () => {
     setIsResending(true);
     
     try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/verify-otp?email=${email}`,
-        },
+      // Get stored signup data for fullName
+      const pendingSignupData = sessionStorage.getItem('pendingSignup');
+      let fullName = '';
+      if (pendingSignupData) {
+        const signupData = JSON.parse(pendingSignupData);
+        fullName = signupData.fullName;
+      }
+
+      const { data, error } = await supabase.functions.invoke('generate-otp', {
+        body: {
+          email,
+          fullName
+        }
       });
 
-      if (error) {
+      if (error || !data.success) {
         toast({
           title: "Failed to resend",
-          description: error.message,
+          description: error?.message || "Failed to generate new verification code",
           variant: "destructive",
         });
       } else {
@@ -98,7 +123,7 @@ const OTPVerification = () => {
     } catch (error: any) {
       toast({
         title: "Failed to resend",
-        description: "An unexpected error occurred. Please try again.",
+        description: error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {

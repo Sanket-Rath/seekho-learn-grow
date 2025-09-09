@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -57,17 +58,41 @@ const Auth = () => {
       return;
     }
 
-    const { data, error } = await signUp(email, password, fullName, role);
-    
-    if (error) {
+    try {
+      // Call our custom OTP generation function
+      const { data, error } = await supabase.functions.invoke('generate-otp', {
+        body: {
+          email,
+          fullName,
+          // Store password and role for later use in OTP verification
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Store signup data temporarily in sessionStorage for OTP verification
+      sessionStorage.setItem('pendingSignup', JSON.stringify({
+        email,
+        password,
+        fullName,
+        role
+      }));
+
+      toast({
+        title: "Verification code sent",
+        description: "Please check your email for the verification code.",
+      });
+
+      // Redirect to OTP verification page
+      navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
+    } catch (error: any) {
       toast({
         title: "Sign up failed",
-        description: error.message,
+        description: error.message || "Failed to send verification code",
         variant: "destructive",
       });
-    } else if (data?.user && !data?.session) {
-      // User needs to verify email, redirect to OTP page
-      navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
     }
     
     setIsSubmitting(false);

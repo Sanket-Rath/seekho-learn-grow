@@ -96,6 +96,30 @@ export type Database = {
           },
         ]
       }
+      otp_verifications: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          otp: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          otp: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          otp?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -131,7 +155,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_otps: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       user_role: "teacher" | "student"
