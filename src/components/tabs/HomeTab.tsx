@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CourseCard } from '@/components/CourseCard';
@@ -24,6 +25,7 @@ interface Course {
 }
 
 export const HomeTab: React.FC = () => {
+  const navigate = useNavigate();
   const { data: recentCourses, isLoading } = useQuery({
     queryKey: ['recent-courses'],
     queryFn: async () => {
@@ -69,7 +71,7 @@ export const HomeTab: React.FC = () => {
             <CourseCard
               key={course.id}
               course={course}
-              onViewCourse={() => {}}
+              onViewCourse={(courseId) => navigate(`/course/${courseId}`)}
               isTeacher={false}
             />
           ))}

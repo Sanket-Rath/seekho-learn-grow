@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,7 @@ import { GraduationCap } from 'lucide-react';
 const Auth = () => {
   const { signIn, signUp, loading } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,7 +57,7 @@ const Auth = () => {
       return;
     }
 
-    const { error } = await signUp(email, password, fullName, role);
+    const { data, error } = await signUp(email, password, fullName, role);
     
     if (error) {
       toast({
@@ -63,6 +65,9 @@ const Auth = () => {
         description: error.message,
         variant: "destructive",
       });
+    } else if (data?.user && !data?.session) {
+      // User needs to verify email, redirect to OTP page
+      navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
     }
     
     setIsSubmitting(false);
